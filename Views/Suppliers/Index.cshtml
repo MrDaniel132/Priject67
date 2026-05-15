@@ -1,0 +1,113 @@
+@{
+    ViewData["Title"] = "Поставщики";
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<div class="main-container page-shell">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold h3 mb-1">Поставщики</h1>
+            <p class="text-muted mb-0">Контакты, привязка товаров и аналитика закупок по каждому поставщику</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#suppliersConnectModal"><i class="bi bi-database-add me-2"></i>Подключить БД</button>
+            <a class="btn btn-dark" asp-controller="Purchases" asp-action="Index"><i class="bi bi-truck me-2"></i>К закупкам</a>
+        </div>
+    </div>
+    <ul class="nav nav-pills app-tabs mb-4">
+        @if (User.IsInRole("Кассир") || User.IsInRole("Администратор") || User.IsInRole("Менеджер") || User.IsInRole("Кладовщик"))
+        {
+            @* каталог *@
+            <li class="nav-item"><a class="nav-link active" asp-controller="Parts" asp-action="Index"><i class="bi bi-list-ul me-2"></i>Каталог товаров</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кассир"))
+        {
+            @* продажи *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Sales" asp-action="Index"><i class="bi bi-bag-check me-2"></i>Продажи</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кладовщик") || User.IsInRole("Менеджер"))
+        {
+            @* закупки *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Purchases" asp-action="Index"><i class="bi bi-truck me-2"></i>Закупки</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кладовщик") || User.IsInRole("Менеджер"))
+        {
+            @* поставщики *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Suppliers" asp-action="Index"><i class="bi bi-truck-flatbed me-2"></i>Поставщики</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кассир") || User.IsInRole("Менеджер"))
+        {
+            @* категории *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Categories" asp-action="Index"><i class="bi bi-tags me-2"></i>Категории</a></li>
+        }
+        @if (User.IsInRole("Администратор"))
+        {
+            @* журнал *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Audit" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Журнал действий</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Менеджер"))
+        {
+            @* аналитика *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Finance" asp-action="Index"><i class="bi bi-bar-chart me-2"></i>Аналитика</a></li>
+        }
+        @if (User.IsInRole("Администратор"))
+        {
+            @* сотрудники *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Employees" asp-action="Index"><i class="bi bi-person-circle"></i> Сотрудники</a></li>
+        }
+    </ul>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card app-card border-0">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Карточка поставщика</h5>
+                    <input type="hidden" id="supplierId">
+                    <div class="mb-3"><label class="form-label small text-muted fw-semibold">Название</label><input id="supplierNameForm" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label small text-muted fw-semibold">Телефон</label><input id="supplierPhoneForm" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label small text-muted fw-semibold">Email</label><input id="supplierEmailForm" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label small text-muted fw-semibold">Контактное лицо</label><input id="supplierContactForm" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label small text-muted fw-semibold">Адрес</label><input id="supplierAddressForm" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label small text-muted fw-semibold">Комментарий</label><textarea id="supplierNoteForm" rows="3" class="form-control"></textarea></div>
+                    <div class="d-flex gap-2"><button id="saveSupplierBtn" class="btn btn-dark flex-grow-1">Сохранить</button><button id="resetSupplierBtn" class="btn btn-outline-secondary">Очистить</button></div>
+                    <div id="supplierFormMessage" class="small mt-3 text-muted"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="row g-3 mb-4">
+                <div class="col-md-4"><div class="stat-card"><div class="stat-label">Поставщиков</div><div class="stat-value" id="suppliersCount">0</div><div class="stat-sub">Активные записи</div></div></div>
+                <div class="col-md-4"><div class="stat-card"><div class="stat-label">Связанных товаров</div><div class="stat-value" id="suppliersLinkedProducts">0</div><div class="stat-sub">По supplier_id в каталоге</div></div></div>
+                <div class="col-md-4"><div class="stat-card"><div class="stat-label">Сумма закупок</div><div class="stat-value" id="suppliersTotalPurchases">0 BYN</div><div class="stat-sub">История поступлений</div></div></div>
+            </div>
+            <div class="card app-card border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h5 class="mb-0">Список поставщиков</h5>
+                        <div class="input-group search-box" style="max-width:280px;"><span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span><input id="suppliersSearchInput" class="form-control border-start-0" placeholder="Название или телефон"></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0"><thead><tr><th>Поставщик</th><th>Контакты</th><th>Товаров</th><th>Закупки</th><th class="text-end">Действие</th></tr></thead><tbody id="suppliersTableBody"><tr><td colspan="5" class="text-center text-muted py-4">Подключи базу данных.</td></tr></tbody></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="suppliersConnectModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Настройки подключения</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-2"><label>Сервер</label><input type="text" id="supDbServer" class="form-control" value="localhost"></div><div class="mb-2"><label>Порт</label><input type="text" id="supDbPort" class="form-control" value="3306"></div><div class="mb-2"><label>База данных</label><input type="text" id="supDbName" class="form-control" value="myfinanceapp_db"></div><div class="row"><div class="col"><label>Логин</label><input type="text" id="supDbUser" class="form-control" value="root"></div><div class="col"><label>Пароль</label><input type="password" id="supDbPass" class="form-control" value="root"></div></div></div><div class="modal-footer"><button type="button" id="btnSuppliersConnect" class="btn btn-dark w-100">Подключиться</button></div></div></div></div>
+@section Scripts {
+<script>
+(() => {
+ const state={settings:null,items:[]}; const key='autoPartsDbSettings'; const el=id=>document.getElementById(id); const money=v=>`${Number(v||0).toLocaleString('ru-RU',{maximumFractionDigits:2})} BYN`;
+ function settings(){return {server:el('supDbServer').value,port:el('supDbPort').value,database:el('supDbName').value,username:el('supDbUser').value,password:el('supDbPass').value};}
+ function fill(s){if(!s)return; el('supDbServer').value=s.server||'localhost'; el('supDbPort').value=s.port||'3306'; el('supDbName').value=s.database||'myfinanceapp_db'; el('supDbUser').value=s.username||'root'; el('supDbPass').value=s.password||'root';}
+ async function json(url,data){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); return await r.json();}
+ async function connect(){const s=settings(); const res=await json('/Database/GetTables',s); if(!res.success){alert(res.message);return;} state.settings=s; localStorage.setItem(key,JSON.stringify(s)); bootstrap.Modal.getInstance(el('suppliersConnectModal'))?.hide(); await load();}
+ async function load(){ if(!state.settings) return; const res=await json('/MasterData/GetSuppliers',{settings:state.settings,inventoryTableName:'parts',suppliersTableName:'suppliers',categoriesTableName:'categories',purchasesTableName:'purchases',purchaseItemsTableName:'purchase_items',search:el('suppliersSearchInput').value.trim()}); if(!res.success){alert(res.message);return;} state.items=res.suppliers||[]; el('suppliersCount').innerText=res.summary?.count||0; el('suppliersLinkedProducts').innerText=res.summary?.linkedProducts||0; el('suppliersTotalPurchases').innerText=money(res.summary?.totalPurchases||0); render(); }
+ function render(){ const body=el('suppliersTableBody'); if(!state.items.length){body.innerHTML='<tr><td colspan="5" class="text-center text-muted py-4">Поставщики не найдены.</td></tr>'; return;} body.innerHTML=state.items.map(item=>`<tr><td><div class="fw-semibold">${item.name||'—'}</div><div class="small text-muted">${item.contactPerson||''}</div></td><td><div>${item.phone||'—'}</div><div class="small text-muted">${item.email||item.address||'—'}</div></td><td>${item.linkedProducts||0}</td><td class="fw-semibold">${money(item.totalPurchases||0)}</td><td class="text-end"><button class="btn btn-sm btn-outline-dark" data-id="${item.id}">Редактировать</button></td></tr>`).join(''); }
+ function fillForm(item){ el('supplierId').value=item?.id||''; el('supplierNameForm').value=item?.name||''; el('supplierPhoneForm').value=item?.phone||''; el('supplierEmailForm').value=item?.email||''; el('supplierContactForm').value=item?.contactPerson||''; el('supplierAddressForm').value=item?.address||''; el('supplierNoteForm').value=item?.note||''; }
+ async function save(){ if(!state.settings) return alert('Сначала подключи БД.'); const res=await json('/MasterData/SaveSupplier',{settings:state.settings,inventoryTableName:'parts',id:el('supplierId').value?Number(el('supplierId').value):null,name:el('supplierNameForm').value.trim(),phone:el('supplierPhoneForm').value.trim(),email:el('supplierEmailForm').value.trim(),contactPerson:el('supplierContactForm').value.trim(),address:el('supplierAddressForm').value.trim(),note:el('supplierNoteForm').value.trim()}); const msg=el('supplierFormMessage'); msg.className=`small mt-3 ${res.success?'text-success':'text-danger'}`; msg.innerText=res.message|| (res.success?'Сохранено.':'Ошибка'); if(res.success){ fillForm(null); await load(); }}
+ el('btnSuppliersConnect').addEventListener('click',connect); el('saveSupplierBtn').addEventListener('click',save); el('resetSupplierBtn').addEventListener('click',()=>fillForm(null)); el('suppliersSearchInput').addEventListener('input',()=>{clearTimeout(window.supSearch); window.supSearch=setTimeout(load,250);}); el('suppliersTableBody').addEventListener('click',e=>{const btn=e.target.closest('[data-id]'); if(!btn) return; const item=state.items.find(x=>String(x.id)===btn.dataset.id); if(item) fillForm(item);});
+ const saved=localStorage.getItem(key); if(saved){try{const s=JSON.parse(saved); fill(s); state.settings=s; load();}catch{}}
+})();
+</script>
+}

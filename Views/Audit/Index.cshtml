@@ -1,0 +1,120 @@
+@{
+    ViewData["Title"] = "Журнал действий";
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div class="main-container page-shell">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold h3 mb-1">Журнал действий пользователей</h1>
+            <p class="text-muted mb-0">Просмотр последних записей из таблицы audit_log</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#auditConnectModal"><i class="bi bi-database-add me-2"></i>Подключить БД</button>
+            <a class="btn btn-dark" asp-controller="Parts" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Назад</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Дата</th>
+                            <th>Пользователь</th>
+                            <th>Действие</th>
+                            <th>Сущность</th>
+                            <th>ID сущности</th>
+                            <th>Подробности</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditRows">
+                        <tr><td colspan="7" class="text-center text-muted py-4">Подключи базу данных, чтобы загрузить журнал.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="auditConnectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Настройки подключения</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-2"><label>Сервер</label><input type="text" id="auditDbServer" class="form-control" value="localhost"></div>
+      <div class="mb-2"><label>Порт</label><input type="text" id="auditDbPort" class="form-control" value="3306"></div>
+      <div class="mb-2"><label>База данных</label><input type="text" id="auditDbName" class="form-control" value="myfinanceapp_db"></div>
+      <div class="row">
+        <div class="col"><label>Логин</label><input type="text" id="auditDbUser" class="form-control" value="root"></div>
+        <div class="col"><label>Пароль</label><input type="password" id="auditDbPass" class="form-control" value="root"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" id="btnAuditConnect" class="btn btn-dark w-100">Подключиться</button></div>
+  </div></div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const key='autoPartsDbSettings';
+    const el=id=>document.getElementById(id);
+    let settings=null;
+
+    async function api(url, body){
+        const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        return await res.json();
+    }
+    function getSettings(){
+        return {
+            server: el('auditDbServer').value,
+            port: el('auditDbPort').value,
+            database: el('auditDbName').value,
+            username: el('auditDbUser').value,
+            password: el('auditDbPass').value
+        };
+    }
+    function fill(s){
+        if(!s) return;
+        el('auditDbServer').value=s.server||'localhost';
+        el('auditDbPort').value=s.port||'3306';
+        el('auditDbName').value=s.database||'myfinanceapp_db';
+        el('auditDbUser').value=s.username||'root';
+        el('auditDbPass').value=s.password||'root';
+    }
+    function render(items){
+        const body = el('auditRows');
+        if(!items?.length){
+            body.innerHTML='<tr><td colspan="7" class="text-center text-muted py-4">Записей пока нет.</td></tr>';
+            return;
+        }
+        body.innerHTML = items.map(x => `<tr>
+            <td>${x.id}</td>
+            <td>${x.createdAt}</td>
+            <td>${x.username}</td>
+            <td>${x.action}</td>
+            <td>${x.entityType}</td>
+            <td>${x.entityId || '—'}</td>
+            <td>${x.details || ''}</td>
+        </tr>`).join('');
+    }
+    async function load(){
+        if(!settings) return;
+        const res = await api('/Audit/GetLogs', settings);
+        if(!res.success){ alert(res.message); return; }
+        render(res.items || []);
+    }
+    el('btnAuditConnect').addEventListener('click', async () => {
+        settings=getSettings();
+        localStorage.setItem(key, JSON.stringify(settings));
+        bootstrap.Modal.getInstance(el('auditConnectModal'))?.hide();
+        await load();
+    });
+    const saved=localStorage.getItem(key);
+    if(saved){
+        try{ settings=JSON.parse(saved); fill(settings); load(); }catch{}
+    }
+})();
+</script>
+}

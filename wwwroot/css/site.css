@@ -1,0 +1,606 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  background: #f8f9fa;
+  font-family: 'Inter', sans-serif;
+  color: #212529;
+}
+
+.page-shell {
+  padding: 40px;
+}
+
+.stat-card,
+.app-card,
+.table-container {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card {
+  padding: 20px;
+  height: 100%;
+}
+
+.stat-label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.stat-sub {
+  color: #adb5bd;
+  font-size: 0.8rem;
+}
+
+.app-tabs .nav-link {
+  color: #6c757d;
+  border-radius: 10px;
+  margin-right: 10px;
+  border: 1px solid #dee2e6;
+  background: #fff;
+}
+
+.app-tabs .nav-link.active {
+  color: #000;
+  border-color: #000;
+  background: #fff;
+}
+
+.table-container {
+  padding: 20px;
+}
+
+.table thead th {
+  border-bottom: none;
+  color: #6c757d;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 14px 8px;
+  font-size: 0.95rem;
+}
+
+.badge-instock {
+  background: #d1f7e8;
+  color: #157347;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.badge-outofstock {
+  background: #ffe5e5;
+  color: #d93025;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.search-box .form-control:focus,
+.search-box .input-group-text,
+.app-select:focus,
+.form-control:focus,
+.form-select:focus {
+  box-shadow: none;
+}
+
+.order-summary-box {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.mock-chart-bars {
+  height: 280px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(28px, 1fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.mock-chart-bars > div {
+  background: linear-gradient(180deg, #212529 0%, #6c757d 100%);
+  border-radius: 12px 12px 4px 4px;
+}
+
+.mock-donut {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: conic-gradient(#212529 0 36%, #495057 36% 60%, #adb5bd 60% 81%, #dee2e6 81% 100%);
+  position: relative;
+}
+
+.mock-donut::after {
+  content: '';
+  position: absolute;
+  inset: 32px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.analytics-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f1f3;
+}
+
+.analytics-list-item:last-child {
+  border-bottom: none;
+}
+
+#salesCartTableBody input[type='number'] {
+  min-width: 80px;
+}
+
+@media (max-width: 767px) {
+  .page-shell {
+    padding: 20px;
+  }
+}
+
+
+main {
+  min-height: 100vh;
+}
+
+.badge-lowstock {
+  background: #fff3cd;
+  color: #997404;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.product-info-field {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 14px;
+  height: 100%;
+}
+
+.product-info-label {
+  color: #6c757d;
+  font-size: 0.82rem;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+.product-info-value {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.filter-chip {
+  border: 1px solid #dee2e6;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: #fff;
+}
+
+:root {
+    /* Светлая тема (по умолчанию) */
+    --bg-main: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-main: #1a1d20;
+    --text-muted: #6c757d;
+    --border-color: #edf2f7;
+    --accent-color: #000000;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    --radius: 18px;
+}
+
+[data-theme="dark"] {
+    /* Темная тема */
+    --bg-main: #0f1113;
+    --bg-card: #1a1d20;
+    --text-main: #f8f9fa;
+    --text-muted: #adb5bd;
+    --border-color: #2d3238;
+    --accent-color: #ffffff;
+    --glass-bg: rgba(26, 29, 32, 0.8);
+    --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: all 0.3s ease;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Современные карточки */
+.app-card, .stat-card, .table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+/* Стеклянный эффект для навигации */
+.app-tabs {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 8px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+}
+
+.nav-pills .nav-link {
+    color: var(--text-muted);
+    border-radius: 10px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-color);
+        color: var(--bg-card);
+    }
+
+/* Стилизация таблицы */
+.table {
+    color: var(--text-main);
+}
+
+    .table thead th {
+        background: var(--bg-main);
+        border-bottom: 2px solid var(--border-color);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+    }
+
+/* Кнопка переключения темы */
+.theme-toggle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    box-shadow: var(--card-shadow);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .input-group-text {
+
+    background-color: #25282c !important; /* Чуть светлее фона карточки, чтобы выделялось */
+    border-color: #343a40 !important;
+    color: #f8f9fa !important;
+}
+
+    /* Цвет текста в плейсхолдерах (подсказках) */
+    [data-theme="dark"] .form-control::placeholder {
+        color: #6c757d;
+    }
+
+/* Исправляем цвет иконок внутри полей (если они есть) */
+[data-theme="dark"] .search-box .input-group-text i {
+    color: #adb5bd !important;
+}
+
+/* Цвет текста в выпадающих списках (чтобы пункты были видны) */
+[data-theme="dark"] select option {
+    background-color: #1a1d20;
+    color: #f8f9fa;
+}
+
+/* Убираем белое свечение при фокусе */
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: #2b2f33 !important;
+    border-color: #555 !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+}
+
+/* Базовые стили для кнопок навигации в темной теме */
+[data-theme="dark"] .app-tabs .nav-link {
+    background-color: transparent !important; /* Делаем неактивные кнопки прозрачными */
+    color: #adb5bd !important; /* Серый текст для неактивных */
+    border: 1px solid transparent;
+}
+
+    /* Эффект при наведении */
+    [data-theme="dark"] .app-tabs .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: #fff !important;
+    }
+
+    /* Стили для активной (нажатой) кнопки */
+    [data-theme="dark"] .app-tabs .nav-link.active {
+        background-color: #ffffff !important; /* Активная кнопка остается яркой (или можно сделать серой) */
+        color: #000000 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+/* Если хочешь, чтобы активная кнопка ТОЖЕ была темной, но выделялась обводкой: */
+/* [data-theme="dark"] .app-tabs .nav-link.active {
+    background-color: #2d3238 !important; 
+    color: #fff !important;
+    border-color: #454d55 !important;
+}
+*/
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] .stat-value {
+    color: #ffffff !important;
+}
+
+/* Делаем описание под заголовком чуть светлее (выделенный синим текст) */
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .stat-sub {
+    color: #adb5bd !important; /* Светло-серый, чтобы читалось */
+}
+[data-theme="dark"] .table {
+    color: #e9ecef !important;
+    border-color: #343a40 !important;
+}
+
+    /* Фон строк таблицы */
+    [data-theme="dark"] .table tbody tr {
+        background-color: transparent !important;
+        color: #e9ecef !important;
+    }
+
+/* Чтобы при наведении на строку она подсвечивалась */
+[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Шапка таблицы */
+[data-theme="dark"] .table thead th {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: #6c757d !important;
+    border-bottom: 2px solid #343a40 !important;
+}
+
+/* Контейнеры таблиц (если у тебя есть класс .table-container) */
+[data-theme="dark"] .table-container {
+    background-color: #1a1d20 !important;
+    border: 1px solid #2d3238 !important;
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: #1a1d20 !important;
+    color: #fff !important;
+    border: 1px solid #343a40 !important;
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: #343a40 !important;
+}
+
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Делаем крестик закрытия белым */
+}
+
+/* Кнопки с контуром (Продажи, Закупки, Экспорт) */
+[data-theme="dark"] .btn-outline-dark {
+    border-color: #3d444b !important;
+    color: #e9ecef !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+    [data-theme="dark"] .btn-outline-dark:hover {
+        background-color: #3d444b !important;
+        color: #fff !important;
+        border-color: #555e67 !important;
+    }
+
+/* Кнопка "Добавить запчасть" (btn-dark) */
+[data-theme="dark"] .btn-dark {
+    background-color: #ffffff !important; /* Делаем её акцентной */
+    color: #000000 !important;
+    border: none !important;
+    font-weight: 600;
+}
+
+    [data-theme="dark"] .btn-dark:hover {
+        background-color: #e2e6ea !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+/* Кнопка "Сбросить фильтры" и другие вторичные кнопки */
+[data-theme="dark"] .btn-outline-secondary {
+    border-color: #3d444b !important;
+    color: #adb5bd !important;
+}
+
+    [data-theme="dark"] .btn-outline-secondary:hover {
+        background-color: #3d444b !important;
+        color: #fff !important;
+    }
+
+
+/* Убираем белый фон у всех ячеек и строк в темной теме */
+[data-theme="dark"] .table,
+[data-theme="dark"] .table > :not(caption) > * > *,
+[data-theme="dark"] .table-responsive {
+    background-color: #1a1d20 !important; /* Тот же цвет, что у твоих карточек */
+    color: #e9ecef !important;
+    border-color: #2d3238 !important;
+    --bs-table-bg: transparent !important; /* Сбрасываем внутреннюю переменную Bootstrap */
+}
+
+/* Красим заголовки (шапку) чуть темнее для контраста */
+[data-theme="dark"] thead th {
+    background-color: #111315 !important;
+    color: #6c757d !important;
+}
+
+/* Исправляем цвет текста в бейджах статусов (чтобы они не сливались) */
+[data-theme="dark"] .badge {
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+/* Делаем все бейджи более спокойными в темной теме */
+[data-theme="dark"] .badge {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Очень слабый фон */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Тонкая рамка */
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+}
+
+/* Цвет для статуса "В наличии" (Зеленый) */
+[data-theme="dark"] .bg-success,
+[data-theme="dark"] .text-bg-success {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+    color: #4cd137 !important;
+    border-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Цвет для статуса "Низкий остаток" / "Нужно пополнить" (Желтый) */
+[data-theme="dark"] .bg-warning,
+[data-theme="dark"] .text-bg-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #ffcc00 !important;
+    border-color: rgba(255, 193, 7, 0.2) !important;
+}
+
+/* Цвет для статуса "Нет на складе" (Красный) */
+[data-theme="dark"] .bg-danger,
+[data-theme="dark"] .text-bg-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    color: #ff4d4d !important;
+    border-color: rgba(220, 53, 69, 0.2) !important;
+}
+
+[data-theme="dark"] .badge::before {
+    content: "•";
+    margin-right: 5px;
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+/* Фоновые блоки (Остаток, Минимум, Цена и т.д.) */
+[data-theme="dark"] .order-summary-box,
+[data-theme="dark"] #productCardFields .col-md-6 > div, /* Если поля генерятся динамически */
+[data-theme="dark"] .modal-body .order-summary-box {
+    background-color: #25282c !important; /* Тёмно-серый фон */
+    border: 1px solid #343a40 !important;
+    color: #ffffff !important;
+}
+
+    /* Заголовки внутри этих блоков (маленький текст сверху) */
+    [data-theme="dark"] .order-summary-box .text-muted,
+    [data-theme="dark"] .order-summary-box .small {
+        color: #adb5bd !important;
+    }
+
+    /* Значения (крупные цифры/текст) */
+    [data-theme="dark"] .order-summary-box .fs-3,
+    [data-theme="dark"] .order-summary-box .fs-4,
+    [data-theme="dark"] .fw-bold {
+        color: #ffffff !important;
+    }
+
+/* Делаем иконки действий в таблице светлыми */
+[data-theme="dark"] .table tbody td i,
+[data-theme="dark"] .table tbody td a i {
+    color: rgba(255, 255, 255, 0.9) !important; /* Ярко-белый с легкой прозрачностью */
+    transition: 0.2s; /* Для плавного наведения */
+}
+
+    /* Эффект при наведении на иконку глаза */
+    [data-theme="dark"] .table tbody td i.bi-eye:hover,
+    [data-theme="dark"] .table tbody td a i.bi-eye:hover {
+        color: #0d6efd !important; /* Делаем его синим при наведении (как в светлой теме) */
+        transform: scale(1.1); /* Легкое увеличение */
+    }
+
+    /* Исправляем цвет карандаша (если он вдруг стал невидимым или тусклым) */
+    [data-theme="dark"] .table tbody td i.bi-pencil,
+    [data-theme="dark"] .table tbody td a i.bi-pencil {
+        color: #ffc107 !important; /* Оставляем его золотистым */
+    }
+
+        /* Эффект при наведении на карандаш */
+        [data-theme="dark"] .table tbody td i.bi-pencil:hover,
+        [data-theme="dark"] .table tbody td a i.bi-pencil:hover {
+            color: #fff !important; /* Белеет при наведении */
+        }
+/* Находим бейдж уведомлений по ID или по классу */
+[data-theme="dark"] #lowStockBadge,
+[data-theme="dark"] .badge.text-bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Полупрозрачный темный фон */
+    color: #ffffff !important; /* Белый текст */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important; /* Тонкая светлая рамка */
+}
+
+    /* Если точка перед текстом тоже должна быть ярче */
+    [data-theme="dark"] #lowStockBadge::before {
+        color: #ff4d4d !important; /* Сделаем точку уведомления красной для привлечения внимания */
+    }
+
+/* Общие настройки для всех статусов в таблице */
+[data-theme="dark"] .badge {
+    border-width: 1px;
+    border-style: solid;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* СТАТУС: НЕТ (Очень темный / Почти черный с красным оттенком) */
+[data-theme="dark"] .bg-danger,
+[data-theme="dark"] .text-bg-danger {
+    background-color: #0d0202 !important; /* Глубокий черный */
+    color: #ff6b6b !important; /* Яркий текст для контраста */
+    border-color: #3d1a1a !important; /* Темно-бордовая граница */
+}
+
+/* СТАТУС: В НАЛИЧИИ (Светло-серый / Нейтральный) */
+[data-theme="dark"] .bg-success,
+[data-theme="dark"] .text-bg-success {
+    background-color: #2d3238 !important; /* Стальной серый */
+    color: #e9ecef !important; /* Почти белый текст */
+    border-color: #454d55 !important; /* Граница чуть светлее фона */
+}
+
+/* СТАТУС: НИЗКИЙ ОСТАТОК (Что-то посередине / Графитовый с золотом) */
+[data-theme="dark"] .bg-warning,
+[data-theme="dark"] .text-bg-warning {
+    background-color: #1e1b10 !important; /* Темно-коричневый графит */
+    color: #ffd43b !important; /* Приглушенное золото */
+    border-color: #453d1f !important; /* Горчичная граница */
+}

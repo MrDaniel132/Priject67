@@ -1,0 +1,106 @@
+﻿@model MyFinanceApp.Models.EmployeeCreateViewModel
+@using MyFinanceApp.Services
+
+@{
+    ViewData["Title"] = "Сотрудники";
+    var users = ViewBag.Users as IReadOnlyList<AppUser>;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Добавление сотрудников</h2>
+        <a class="btn btn-outline-dark" asp-controller="Parts" asp-action="Index">Назад</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+    }
+
+    <div class="card mb-4 bg-dark text-light border-secondary">
+        <div class="card-body">
+            <form asp-action="Index" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label">ФИО сотрудника</label>
+                    <input asp-for="FullName" class="form-control bg-dark text-light border-secondary" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Логин</label>
+                    <input asp-for="Username" class="form-control bg-dark text-light border-secondary" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Пароль</label>
+                    <input asp-for="Password" class="form-control bg-dark text-light border-secondary" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Роль</label>
+                    <select asp-for="Role" class="form-select bg-dark text-light border-secondary">
+                        <option value="">Выберите роль</option>
+                        <option value="Администратор">Администратор</option>
+                        <option value="Менеджер">Менеджер</option>
+                        <option value="Кладовщик">Кладовщик</option>
+                        <option value="Кассир">Кассир</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-outline-light">Добавить сотрудника</button>
+            </form>
+        </div>
+    </div>
+
+    <h4>Список сотрудников</h4>
+
+    <table class="table table-dark table-bordered table-hover border-secondary">
+        <thead>
+            <tr>
+                <th>Логин</th>
+                <th>ФИО</th>
+                <th>Роль</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users!)
+            {
+                <tr>
+                    <td>@user.Username</td>
+                    <td>@user.DisplayName</td>
+                    <td>@user.Role</td>
+                    <td>
+                        @if (!user.Username.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <form asp-action="Delete" method="post" style="display:inline;"
+                                  onsubmit="return confirm('Удалить сотрудника @user.Username?');">
+                                <input type="hidden" name="username" value="@user.Username" />
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Удалить
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-secondary">Нельзя удалить</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

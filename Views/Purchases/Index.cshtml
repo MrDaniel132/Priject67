@@ -1,0 +1,558 @@
+@{
+    ViewData["Title"] = "Закупки";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div class="main-container page-shell">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold h3 mb-1">Оформление закупки</h1>
+            <p class="text-muted mb-0">Пополнение склада, данные поставщика и контроль последних поступлений</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-dark" asp-controller="Parts" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>К каталогу</a>
+            <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#purchaseConnectModal"><i class="bi bi-database me-2"></i>Подключить БД</button>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills app-tabs mb-4">
+        @if (User.IsInRole("Кассир") || User.IsInRole("Администратор") || User.IsInRole("Менеджер") || User.IsInRole("Кладовщик"))
+        {
+            @* каталог *@
+            <li class="nav-item"><a class="nav-link active" asp-controller="Parts" asp-action="Index"><i class="bi bi-list-ul me-2"></i>Каталог товаров</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кассир"))
+        {
+            @* продажи *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Sales" asp-action="Index"><i class="bi bi-bag-check me-2"></i>Продажи</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кладовщик") || User.IsInRole("Менеджер"))
+        {
+            @* закупки *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Purchases" asp-action="Index"><i class="bi bi-truck me-2"></i>Закупки</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кладовщик") || User.IsInRole("Менеджер"))
+        {
+            @* поставщики *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Suppliers" asp-action="Index"><i class="bi bi-truck-flatbed me-2"></i>Поставщики</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Кассир") || User.IsInRole("Менеджер"))
+        {
+            @* категории *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Categories" asp-action="Index"><i class="bi bi-tags me-2"></i>Категории</a></li>
+        }
+        @if (User.IsInRole("Администратор"))
+        {
+            @* журнал *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Audit" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Журнал действий</a></li>
+        }
+        @if (User.IsInRole("Администратор") || User.IsInRole("Менеджер"))
+        {
+            @* аналитика *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Finance" asp-action="Index"><i class="bi bi-bar-chart me-2"></i>Аналитика</a></li>
+        }
+        @if (User.IsInRole("Администратор"))
+        {
+            @* сотрудники *@
+            <li class="nav-item"><a class="nav-link" asp-controller="Employees" asp-action="Index"><i class="bi bi-person-circle"></i> Сотрудники</a></li>
+        }
+    </ul>
+
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-8">
+            <div class="table-container h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h3 class="h4 mb-1">Товары для закупки</h3>
+                        <div class="text-muted">Выбери таблицу склада и добавь позиции, которые нужно пополнить</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <select id="purchaseTableComboBox" class="form-select app-select"></select>
+                </div>
+                <div class="input-group search-box mb-3">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="purchaseSearchInput" class="form-control border-start-0" placeholder="Артикул, название, бренд...">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Артикул</th>
+                                <th>Название</th>
+                                <th>Бренд</th>
+                                <th>Текущий остаток</th>
+                                <th>Закуп. цена</th>
+                                <th class="text-end">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchasePartsTableBody">
+                            <tr><td colspan="6" class="text-center text-muted py-4">Подключи базу данных, чтобы начать оформление закупки.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="table-container mb-4">
+                <h3 class="h4 mb-3">Данные поставщика</h3>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Поставщик</label>
+                    <input id="supplierName" class="form-control" placeholder="Например, Автотрейд Плюс">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Телефон</label>
+                    <input id="supplierPhone" class="form-control" placeholder="+375 (29) 123-45-67">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Номер документа / накладной</label>
+                    <input id="purchaseDocumentNumber" class="form-control" placeholder="INV-2026-001">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Статус</label>
+                    <select id="purchaseStatus" class="form-select">
+                        <option value="received">Принят на склад</option>
+                        <option value="pending">Ожидается</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label text-muted small fw-bold">Комментарий</label>
+                    <textarea id="purchaseNote" class="form-control" rows="3" placeholder="Комментарий к закупке, примечание по поставке..."></textarea>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h4 mb-0">Состав закупки</h3>
+                    <span id="purchaseCartCount" class="badge text-bg-light">0 позиций</span>
+                </div>
+
+                <div id="purchaseCartEmpty" class="text-muted">Корзина закупки пока пуста. Добавь товары из списка слева.</div>
+                <div id="purchaseCartWrapper" class="d-none">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th style="width:130px;">Кол-во</th>
+                                    <th style="width:140px;">Цена</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchaseCartTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="order-summary-box">
+                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Товаров</span><strong id="purchaseSummaryQuantity">0 шт.</strong></div>
+                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Позиции</span><strong id="purchaseSummaryPositions">0</strong></div>
+                    <div class="d-flex justify-content-between align-items-center fs-4 fw-bold"><span>Итого</span><span id="purchaseSummaryTotal">0 BYN</span></div>
+                </div>
+
+                <button id="submitPurchaseBtn" class="btn btn-dark w-100 mt-4"><i class="bi bi-check2-circle me-2"></i>Оформить закупку</button>
+                <div id="purchaseResultMessage" class="small mt-3 text-muted"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h3 class="h4 mb-1">История закупок</h3>
+                <div class="text-muted">Последние поступления и сводка по поставщикам</div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <div class="input-group search-box" style="min-width: 280px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="purchaseHistorySearchInput" class="form-control border-start-0" placeholder="Поставщик, документ или номер закупки">
+                </div>
+                <button id="refreshPurchaseHistoryBtn" class="btn btn-outline-dark"><i class="bi bi-arrow-clockwise me-2"></i>Обновить</button>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-4"><div class="order-summary-box"><div class="small text-muted mb-1">Закупок</div><div class="fs-4 fw-bold" id="purchaseHistoryCount">0</div></div></div>
+            <div class="col-md-4"><div class="order-summary-box"><div class="small text-muted mb-1">Сумма поступлений</div><div class="fs-4 fw-bold" id="purchaseHistoryTotal">0 BYN</div></div></div>
+            <div class="col-md-4"><div class="order-summary-box"><div class="small text-muted mb-1">Единиц товара</div><div class="fs-4 fw-bold" id="purchaseHistoryItems">0</div></div></div>
+        </div>
+
+        <div id="purchaseHistoryMessage" class="small text-muted mb-3">История закупок пока не загружена.</div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Закупка</th>
+                        <th>Дата</th>
+                        <th>Поставщик</th>
+                        <th>Статус</th>
+                        <th>Состав</th>
+                        <th>Сумма</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseHistoryTableBody">
+                    <tr><td colspan="6" class="text-center text-muted py-4">История закупок пока не загружена.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="purchaseConnectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Настройки подключения</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2"><label>Сервер</label><input type="text" id="purchaseDbServer" class="form-control" value="localhost"></div>
+                <div class="mb-2"><label>Порт</label><input type="text" id="purchaseDbPort" class="form-control" value="3306"></div>
+                <div class="mb-2"><label>База данных</label><input type="text" id="purchaseDbName" class="form-control" value="myfinanceapp_db"></div>
+                <div class="row">
+                    <div class="col"><label>Логин</label><input type="text" id="purchaseDbUser" class="form-control" value="root"></div>
+                    <div class="col"><label>Пароль</label><input type="password" id="purchaseDbPass" class="form-control" value="root"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnPurchaseConnect" class="btn btn-dark w-100">Подключиться и загрузить таблицы</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const state = { settings: null, allRows: [], cart: [] };
+            const localSettingsKey = 'autoPartsDbSettings';
+            const el = (id) => document.getElementById(id);
+
+            function parseNumber(value) {
+                if (value === null || value === undefined) return 0;
+                if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+                const normalized = String(value).trim().replace(/\s+/g, '').replace(/,/g, '.');
+                const parsed = Number(normalized);
+                return Number.isFinite(parsed) ? parsed : 0;
+            }
+
+            function formatMoney(value) {
+                return `${parseNumber(value).toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} BYN`;
+            }
+
+            function getField(row, ...names) {
+                for (const name of names) {
+                    const key = Object.keys(row).find(k => k.toLowerCase() === name.toLowerCase());
+                    if (key) return row[key];
+                }
+                return '';
+            }
+
+            function getPurchasePriceValue(row) {
+                const direct = getField(row, 'purchase_price', 'cost_price', 'buy_price', 'incoming_price', 'wholesale_price', '__resolvedPrice', 'price');
+                return parseNumber(direct);
+            }
+
+            function getSettingsFromForm() {
+                return {
+                    server: el('purchaseDbServer').value,
+                    port: el('purchaseDbPort').value,
+                    database: el('purchaseDbName').value,
+                    username: el('purchaseDbUser').value,
+                    password: el('purchaseDbPass').value
+                };
+            }
+
+            function fillSettingsForm(settings) {
+                if (!settings) return;
+                el('purchaseDbServer').value = settings.server || 'localhost';
+                el('purchaseDbPort').value = settings.port || '3306';
+                el('purchaseDbName').value = settings.database || 'myfinanceapp_db';
+                el('purchaseDbUser').value = settings.username || 'root';
+                el('purchaseDbPass').value = settings.password || 'root';
+            }
+
+            async function apiRequest(url, data) {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            }
+
+            function currentTableName() {
+                return el('purchaseTableComboBox').value;
+            }
+
+            function renderParts(rows) {
+                const tbody = el('purchasePartsTableBody');
+                if (!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">По выбранным условиям ничего не найдено.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = rows.map(row => {
+                    const id = getField(row, 'id');
+                    const partNumber = getField(row, '__resolvedPartNumber', 'part_number', 'SKU');
+                    const partName = getField(row, '__resolvedPartName', 'part_name', 'name');
+                    const brand = getField(row, '__resolvedBrand', 'brand', 'manufacturer');
+                    const quantity = parseNumber(getField(row, '__resolvedQuantity', 'quantity', 'stock'));
+                    const purchasePrice = getPurchasePriceValue(row);
+                    return `
+                        <tr>
+                            <td class="fw-semibold">${partNumber || '—'}</td>
+                            <td>${partName || '—'}</td>
+                            <td>${brand || '—'}</td>
+                            <td>${quantity} шт.</td>
+                            <td>${formatMoney(purchasePrice)}</td>
+                            <td class="text-end"><button class="btn btn-sm btn-outline-dark" data-action="add" data-id="${id || ''}" data-number="${partNumber || ''}"><i class="bi bi-plus-lg me-1"></i>Добавить</button></td>
+                        </tr>`;
+                }).join('');
+            }
+
+            function filterAndRenderParts() {
+                const query = el('purchaseSearchInput').value.trim().toLowerCase();
+                const rows = state.allRows.filter(row => {
+                    if (!query) return true;
+                    return Object.values(row).some(v => String(v).toLowerCase().includes(query));
+                });
+                renderParts(rows);
+            }
+
+            function getCartTotals() {
+                return {
+                    totalQuantity: state.cart.reduce((sum, item) => sum + item.quantity, 0),
+                    totalAmount: state.cart.reduce((sum, item) => sum + (item.quantity * item.purchasePrice), 0),
+                    positions: state.cart.length
+                };
+            }
+
+            function renderCart() {
+                const empty = el('purchaseCartEmpty');
+                const wrapper = el('purchaseCartWrapper');
+                const tbody = el('purchaseCartTableBody');
+                const totals = getCartTotals();
+
+                el('purchaseCartCount').innerText = `${totals.positions} позиций`;
+                el('purchaseSummaryQuantity').innerText = `${totals.totalQuantity} шт.`;
+                el('purchaseSummaryPositions').innerText = totals.positions;
+                el('purchaseSummaryTotal').innerText = formatMoney(totals.totalAmount);
+
+                if (!state.cart.length) {
+                    empty.classList.remove('d-none');
+                    wrapper.classList.add('d-none');
+                    tbody.innerHTML = '';
+                    return;
+                }
+
+                empty.classList.add('d-none');
+                wrapper.classList.remove('d-none');
+                tbody.innerHTML = state.cart.map((item, index) => `
+                    <tr>
+                        <td><div class="fw-semibold">${item.partName}</div><div class="text-muted small">${item.partNumber || 'Без артикула'}</div></td>
+                        <td><input type="number" class="form-control form-control-sm" min="1" value="${item.quantity}" data-action="qty" data-index="${index}"></td>
+                        <td><input type="number" step="0.01" min="0" class="form-control form-control-sm" value="${item.purchasePrice}" data-action="price" data-index="${index}"></td>
+                        <td class="text-end"><button class="btn btn-sm btn-link text-danger p-0" data-action="remove" data-index="${index}"><i class="bi bi-x-lg"></i></button></td>
+                    </tr>`).join('');
+            }
+
+            function renderHistory(purchases, summary) {
+                const tbody = el('purchaseHistoryTableBody');
+                el('purchaseHistoryCount').innerText = summary?.count ?? 0;
+                el('purchaseHistoryTotal').innerText = formatMoney(summary?.totalAmount ?? 0);
+                el('purchaseHistoryItems').innerText = summary?.totalItems ?? 0;
+                if (!purchases?.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Закупок пока нет.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = purchases.map(purchase => `
+                    <tr>
+                        <td class="fw-semibold">#${purchase.id}</td>
+                        <td>${purchase.purchaseDate}</td>
+                        <td><div class="fw-semibold">${purchase.supplierName || '—'}</div><div class="small text-muted">${purchase.supplierPhone || purchase.documentNumber || 'Без контактов'}</div></td>
+                        <td>${purchase.status === 'received' ? '<span class="badge rounded-pill text-bg-success-subtle text-success-emphasis">Принят</span>' : '<span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">Ожидается</span>'}</td>
+                        <td>${purchase.positions} поз. / ${purchase.totalQuantity} шт.</td>
+                        <td class="fw-semibold">${formatMoney(purchase.totalAmount)}</td>
+                    </tr>`).join('');
+            }
+
+            function addToCart(row, identifier) {
+                const partNumber = getField(row, '__resolvedPartNumber', 'part_number', 'SKU');
+                const partName = getField(row, '__resolvedPartName', 'part_name', 'name');
+                const purchasePrice = getPurchasePriceValue(row);
+                const existing = state.cart.find(item => item.key === identifier);
+                if (existing) {
+                    existing.quantity += 1;
+                } else {
+                    state.cart.push({
+                        key: identifier,
+                        partId: getField(row, 'id') || null,
+                        partNumber,
+                        partName,
+                        purchasePrice,
+                        quantity: 1
+                    });
+                }
+                renderCart();
+            }
+
+            async function loadTableData() {
+                const tableName = currentTableName();
+                if (!tableName || !state.settings) return;
+                const result = await apiRequest(`/Database/GetTableData?tableName=${encodeURIComponent(tableName)}`, state.settings);
+                if (!result.success) {
+                    el('purchasePartsTableBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">${result.message}</td></tr>`;
+                    return;
+                }
+                state.allRows = result.rows;
+                filterAndRenderParts();
+            }
+
+            async function loadPurchaseHistory() {
+                if (!state.settings) return;
+                const result = await apiRequest('/Inventory/GetPurchases', {
+                    settings: state.settings,
+                    inventoryTableName: currentTableName() || 'parts',
+                    search: el('purchaseHistorySearchInput').value.trim(),
+                    purchasesTableName: 'purchases',
+                    purchaseItemsTableName: 'purchase_items',
+                    limit: 50
+                });
+                const message = el('purchaseHistoryMessage');
+                if (!result.success) {
+                    message.className = 'small text-danger mb-3';
+                    message.innerText = result.message || 'Не удалось загрузить историю закупок.';
+                    renderHistory([], { count: 0, totalAmount: 0, totalItems: 0 });
+                    return;
+                }
+                message.className = 'small text-muted mb-3';
+                message.innerText = result.purchases?.length ? 'Закупки доступны ниже.' : 'Закупок пока нет.';
+                renderHistory(result.purchases, result.summary);
+            }
+
+            async function connectAndLoadTables() {
+                const settings = getSettingsFromForm();
+                const result = await apiRequest('/Database/GetTables', settings);
+                if (!result.success) {
+                    alert('Ошибка: ' + result.message);
+                    return;
+                }
+                state.settings = settings;
+                localStorage.setItem(localSettingsKey, JSON.stringify(settings));
+                const combo = el('purchaseTableComboBox');
+                combo.innerHTML = '<option value="">Таблица товаров</option>';
+                result.tables.forEach(name => combo.insertAdjacentHTML('beforeend', `<option value="${name}">${name}</option>`));
+                combo.value = result.tables.includes('parts') ? 'parts' : (result.tables[0] || '');
+                bootstrap.Modal.getInstance(el('purchaseConnectModal'))?.hide();
+                await loadTableData();
+                await loadPurchaseHistory();
+            }
+
+            async function submitPurchase() {
+                const tableName = currentTableName();
+                if (!state.settings) return alert('Сначала подключи базу данных.');
+                if (!tableName) return alert('Выбери таблицу товаров.');
+                if (!state.cart.length) return alert('Добавь в закупку хотя бы одну позицию.');
+
+                const supplierName = el('supplierName').value.trim();
+                if (!supplierName) return alert('Укажи поставщика.');
+
+                const payload = {
+                    settings: state.settings,
+                    inventoryTableName: tableName,
+                    purchasesTableName: 'purchases',
+                    purchaseItemsTableName: 'purchase_items',
+                    supplierName: supplierName,
+                    supplierPhone: el('supplierPhone').value.trim(),
+                    documentNumber: el('purchaseDocumentNumber').value.trim(),
+                    status: el('purchaseStatus').value,
+                    note: el('purchaseNote').value.trim(),
+                    items: state.cart.map(item => ({
+                        partId: item.partId,
+                        partNumber: item.partNumber,
+                        partName: item.partName,
+                        purchasePrice: Number(item.purchasePrice),
+                        quantity: Number(item.quantity)
+                    }))
+                };
+
+                const result = await apiRequest('/Inventory/CreatePurchase', payload);
+                const msg = el('purchaseResultMessage');
+                if (result.success) {
+                    msg.className = 'small mt-3 text-success';
+                    msg.innerText = `Закупка №${result.purchaseId} успешно сохранена.`;
+                    state.cart = [];
+                    renderCart();
+                    el('supplierName').value = '';
+                    el('supplierPhone').value = '';
+                    el('purchaseDocumentNumber').value = '';
+                    el('purchaseNote').value = '';
+                    await loadTableData();
+                    await loadPurchaseHistory();
+                } else {
+                    msg.className = 'small mt-3 text-danger';
+                    msg.innerText = result.message || 'Не удалось оформить закупку.';
+                }
+            }
+
+            el('btnPurchaseConnect').addEventListener('click', connectAndLoadTables);
+            el('purchaseTableComboBox').addEventListener('change', loadTableData);
+            el('purchaseSearchInput').addEventListener('input', filterAndRenderParts);
+            el('submitPurchaseBtn').addEventListener('click', submitPurchase);
+            el('refreshPurchaseHistoryBtn').addEventListener('click', loadPurchaseHistory);
+            el('purchaseHistorySearchInput').addEventListener('input', () => {
+                clearTimeout(window.purchaseHistoryTimer);
+                window.purchaseHistoryTimer = setTimeout(loadPurchaseHistory, 250);
+            });
+
+            el('purchasePartsTableBody').addEventListener('click', (event) => {
+                const button = event.target.closest('[data-action="add"]');
+                if (!button) return;
+                const identifier = button.dataset.id || button.dataset.number;
+                const row = state.allRows.find(r => String(getField(r, 'id') || '') === button.dataset.id || String(getField(r, '__resolvedPartNumber', 'part_number', 'SKU') || '') === button.dataset.number);
+                if (row) addToCart(row, identifier);
+            });
+
+            el('purchaseCartTableBody').addEventListener('input', (event) => {
+                const control = event.target.closest('[data-index]');
+                if (!control) return;
+                const index = Number(control.dataset.index);
+                const item = state.cart[index];
+                if (!item) return;
+                if (control.dataset.action === 'qty') {
+                    item.quantity = Math.max(1, parseNumber(control.value) || 1);
+                    control.value = item.quantity;
+                }
+                if (control.dataset.action === 'price') {
+                    item.purchasePrice = Math.max(0, parseNumber(control.value));
+                    control.value = item.purchasePrice;
+                }
+                renderCart();
+            });
+
+            el('purchaseCartTableBody').addEventListener('click', (event) => {
+                const button = event.target.closest('[data-action="remove"]');
+                if (!button) return;
+                state.cart.splice(Number(button.dataset.index), 1);
+                renderCart();
+            });
+
+            const saved = localStorage.getItem(localSettingsKey);
+            if (saved) {
+                try {
+                    const settings = JSON.parse(saved);
+                    fillSettingsForm(settings);
+                    state.settings = settings;
+                    connectAndLoadTables();
+                } catch {}
+            }
+            renderCart();
+        })();
+    </script>
+}
